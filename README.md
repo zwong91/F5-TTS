@@ -28,6 +28,8 @@ conda activate f5-tts
 
 # Install pytorch with your CUDA version, e.g.
 pip install torch==2.3.0+cu118 torchaudio==2.3.0+cu118 --extra-index-url https://download.pytorch.org/whl/cu118
+
+export HF_ENDPOINT=https://hf-mirror.com
 ```
 
 Then you can choose from a few options below:
@@ -44,7 +46,7 @@ pip install git+https://github.com/SWivid/F5-TTS.git
 git clone https://github.com/SWivid/F5-TTS.git
 cd F5-TTS
 # git submodule update --init --recursive  # (optional, if need bigvgan)
-pip install -e .
+pip install -e .  -i https://pypi.tuna.tsinghua.edu.cn/simple
 ```
 If initialize submodule, you should add the following code at the beginning of `src/third_party/BigVGAN/bigvgan.py`.
 ```python
@@ -90,10 +92,10 @@ f5-tts_infer-gradio --share
 ```bash
 # Run with flags
 # Leave --ref_text "" will have ASR model transcribe (extra GPU memory usage)
-f5-tts_infer-cli \
+HF_ENDPOINT=https://hf-mirror.com f5-tts_infer-cli \
 --model "F5-TTS" \
 --ref_audio "ref_audio.wav" \
---ref_text "The content, subtitle or transcription of reference audio." \
+--ref_text "" \
 --gen_text "Some text you want TTS model generate for you."
 
 # Run with default setting. src/f5_tts/infer/examples/basic/basic.toml
