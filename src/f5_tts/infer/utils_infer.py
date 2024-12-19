@@ -21,6 +21,7 @@ import torch
 import torchaudio
 import tqdm
 from huggingface_hub import snapshot_download, hf_hub_download
+from faster_whisper import WhisperModel
 from pydub import AudioSegment, silence
 from transformers import pipeline
 from vocos import Vocos
@@ -135,23 +136,11 @@ def load_vocoder(vocoder_name="vocos", is_local=False, local_path="", device=dev
 asr_pipe = None
 
 
-def initialize_asr_pipeline(device: str = device, dtype=torch.float32):
-    if dtype is None:
-        dtype = (
-            torch.float16
-            if "cuda" in device
-            and torch.cuda.get_device_properties(device).major >= 6
-            and not torch.cuda.get_device_name().endswith("[ZLUDA]")
-            else torch.float32
-        )
+def initialize_asr_pipeline(device: str = device, dtype=None):
     global asr_pipe
-    asr_pipe = pipeline(
-        "automatic-speech-recognition",
-        model="Systran/faster-whisper-large-v3",
-        torch_dtype=dtype,
-        device=device,
+    asr_pipe = WhisperModel(
+        "large-v3", device=device, compute_type="float16"
     )
-
 
 # transcribe
 
@@ -160,13 +149,15 @@ def transcribe(ref_audio, language=None):
     global asr_pipe
     if asr_pipe is None:
         initialize_asr_pipeline(device=device)
-    return asr_pipe(
+    segments, info = asr_pipe.transcribe(
         ref_audio,
-        chunk_length_s=30,
-        batch_size=128,
-        generate_kwargs={"task": "transcribe", "language": language} if language else {"task": "transcribe"},
-        return_timestamps=False,
-    )["text"].strip()
+        word_timestamps=True, 
+        language=language,
+    )
+    
+    segments = list(segments)  # The transcription will actually run here.
+    
+    text = " ".join([s.text.strip() for s in segments])
 
 
 # load model checkpoint for inference
