@@ -94,9 +94,9 @@ f5-tts_infer-gradio --share
 # Leave --ref_text "" will have ASR model transcribe (extra GPU memory usage)
 HF_ENDPOINT=https://hf-mirror.com f5-tts_infer-cli \
 --model "F5-TTS" \
---ref_audio "ref_audio.wav" \
+--ref_audio "susu.wav" \
 --ref_text "" \
---gen_text "Some text you want TTS model generate for you."
+--gen_text "我看最近有一部科幻片挺火的，叫《星际探险》，听说很刺激。我也是，今天有些工作要赶。对了，周末有空吗？我们可以一起去看个电影。听起来不错！那就定了，周六下午见吧。"
 
 # Run with default setting. src/f5_tts/infer/examples/basic/basic.toml
 f5-tts_infer-cli
